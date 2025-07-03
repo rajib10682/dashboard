@@ -4,6 +4,7 @@ import com.metrics.dashboard.dto.PlanResponse;
 import com.metrics.dashboard.dto.SummaryResponse;
 import com.metrics.dashboard.entity.Config;
 import com.metrics.dashboard.entity.Plan;
+import com.metrics.dashboard.entity.Override;
 import com.metrics.dashboard.repository.ConfigRepository;
 import com.metrics.dashboard.repository.PlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +33,18 @@ public class DashboardService {
         
         Config config = getConfig();
         
-        return plans.map(plan -> new PlanResponse(
-            plan.getId(),
-            plan.getPlanName(),
-            plan.getMedianExecutionTime(),
-            plan.getAvgItems(),
-            plan.getDataId(),
-            plan.getCreatedDate(),
-            getColorCode(plan.getMedianExecutionTime(), config)
-        ));
+        return plans.map(plan -> {
+            Double avgCoreExecutionTime = calculateAvgCoreExecutionTime(plan);
+            String colorCode = getColorCode(avgCoreExecutionTime, config);
+            return new PlanResponse(
+                plan.getPlanId(),
+                plan.getPlanName(),
+                plan.getForDate(),
+                plan.getDataId(),
+                avgCoreExecutionTime,
+                colorCode
+            );
+        });
     }
     
     public SummaryResponse getDashboardSummary(Integer dataId) {
@@ -55,31 +59,44 @@ public class DashboardService {
             return new SummaryResponse(0, 0.0, 0);
         }
         
-        int totalPlans = plans.size();
-        double avgMedianTime = plans.stream()
-            .mapToDouble(Plan::getMedianExecutionTime)
-            .average()
-            .orElse(0.0);
-        int totalItems = plans.stream()
-            .mapToInt(Plan::getAvgItems)
+        double totalCoreExecutionTime = plans.stream()
+            .mapToDouble(this::calculateAvgCoreExecutionTime)
             .sum();
         
-        return new SummaryResponse(totalPlans, Math.round(avgMedianTime * 100.0) / 100.0, totalItems);
+        double avgCoreExecutionTime = totalCoreExecutionTime / plans.size();
+        
+        int totalOverrides = plans.stream()
+            .mapToInt(plan -> plan.getOverrides() != null ? plan.getOverrides().size() : 0)
+            .sum();
+        
+        return new SummaryResponse(plans.size(), avgCoreExecutionTime, totalOverrides);
+    }
+    
+    private Double calculateAvgCoreExecutionTime(Plan plan) {
+        if (plan.getOverrides() == null || plan.getOverrides().isEmpty()) {
+            return 0.0;
+        }
+        
+        return plan.getOverrides().stream()
+            .mapToDouble(Override::getCoreExecutionTime)
+            .average()
+            .orElse(0.0);
+    }
+    
+    private Config getConfig() {
+        return configRepository.findAll().stream().findFirst()
+            .orElse(new Config(100.0, 50.0, 25.0));
     }
     
     private String getColorCode(Double executionTime, Config config) {
-        if (executionTime > config.getRedThreshold()) {
+        if (executionTime == null) return "green";
+        
+        if (executionTime >= config.getRedThreshold()) {
             return "red";
-        } else if (executionTime > config.getAmberThreshold()) {
+        } else if (executionTime >= config.getAmberThreshold()) {
             return "amber";
         } else {
             return "green";
         }
-    }
-    
-    private Config getConfig() {
-        return configRepository.findAll().stream()
-            .findFirst()
-            .orElse(new Config());
     }
 }

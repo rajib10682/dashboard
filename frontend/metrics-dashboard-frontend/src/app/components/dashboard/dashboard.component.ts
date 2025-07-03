@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit {
     
     const page = event ? event.first / event.rows : 0;
     const size = event ? event.rows : 10;
-    const sortBy = event?.sortField || 'id';
+    const sortBy = event?.sortField || 'planId';
     const sortDir = event?.sortOrder === 1 ? 'asc' : 'desc';
 
     this.apiService.getDashboardData(this.selectedDataId || undefined, page, size, sortBy, sortDir)
@@ -114,9 +114,9 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  deletePlan(id: number) {
-    if (confirm('Are you sure you want to delete this plan? This will also delete all related overrides and details.')) {
-      this.apiService.deletePlan(id).subscribe({
+  deletePlan(planId: number) {
+    if (confirm('Are you sure you want to delete this plan? This will also delete all related overrides and items.')) {
+      this.apiService.deletePlan(planId).subscribe({
         next: () => {
           this.loadDashboardData();
           this.loadSummary();

@@ -23,7 +23,7 @@ public class DashboardController {
             @RequestParam(required = false) Integer dataId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "planId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
         
         Sort sort = sortDir.equalsIgnoreCase("desc") ? 

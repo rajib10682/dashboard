@@ -33,11 +33,11 @@
           <span class="summary-value">{{ summary.totalPlans }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Avg Median Time:</span>
-          <span class="summary-value">{{ summary.avgMedianTime | number:'1.2-2' }}ms</span>
+          <span class="summary-label">Avg Core Execution Time:</span>
+          <span class="summary-value">{{ summary.avgExecutionTime | number:'1.2-2' }}s</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Total Items:</span>
+          <span class="summary-label">Total Overrides:</span>
           <span class="summary-value">{{ summary.totalItems }}</span>
         </div>
       </div>
@@ -58,34 +58,32 @@
       
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="id">Plan ID <p-sortIcon field="id"></p-sortIcon></th>
+          <th pSortableColumn="planId">Plan ID <p-sortIcon field="planId"></p-sortIcon></th>
           <th pSortableColumn="planName">Plan Name <p-sortIcon field="planName"></p-sortIcon></th>
-          <th pSortableColumn="medianExecutionTime">Median Execution Time <p-sortIcon field="medianExecutionTime"></p-sortIcon></th>
-          <th pSortableColumn="avgItems">Avg Items <p-sortIcon field="avgItems"></p-sortIcon></th>
+          <th pSortableColumn="forDate">For Date <p-sortIcon field="forDate"></p-sortIcon></th>
+          <th pSortableColumn="avgCoreExecutionTime">Core Execution Time <p-sortIcon field="avgCoreExecutionTime"></p-sortIcon></th>
           <th pSortableColumn="dataId">Data ID <p-sortIcon field="dataId"></p-sortIcon></th>
-          <th pSortableColumn="createdDate">Created Date <p-sortIcon field="createdDate"></p-sortIcon></th>
           <th>Actions</th>
         </tr>
       </ng-template>
       
       <ng-template pTemplate="body" let-plan>
         <tr>
-          <td>{{ plan.id }}</td>
+          <td>{{ plan.planId }}</td>
           <td>{{ plan.planName }}</td>
+          <td>{{ plan.forDate }}</td>
           <td>
             <p-tag 
-              [value]="plan.medianExecutionTime + 'ms'" 
+              [value]="plan.avgCoreExecutionTime?.toFixed(2) + 's'" 
               [severity]="getColorSeverity(plan.colorCode)">
             </p-tag>
           </td>
-          <td>{{ plan.avgItems }}</td>
           <td>{{ plan.dataId }}</td>
-          <td>{{ plan.createdDate | date:'short' }}</td>
           <td>
             <p-button 
               icon="pi pi-trash" 
               class="p-button-rounded p-button-danger p-button-text"
-              (onClick)="deletePlan(plan.id)"
+              (onClick)="deletePlan(plan.planId)"
               pTooltip="Delete Plan">
             </p-button>
           </td>

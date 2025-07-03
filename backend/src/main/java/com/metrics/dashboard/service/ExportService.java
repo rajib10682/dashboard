@@ -1,18 +1,17 @@
 package com.metrics.dashboard.service;
 
 import com.metrics.dashboard.entity.Plan;
+import com.metrics.dashboard.entity.Override;
 import com.metrics.dashboard.repository.PlanRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ExportService {
@@ -20,7 +19,7 @@ public class ExportService {
     @Autowired
     private PlanRepository planRepository;
     
-    public Map<String, String> exportToCsv(Integer dataId) {
+    public byte[] exportToCsv(Integer dataId) throws IOException {
         List<Plan> plans;
         if (dataId != null) {
             plans = planRepository.findByDataId(dataId);
@@ -28,36 +27,33 @@ public class ExportService {
             plans = planRepository.findAll();
         }
         
-        try {
-            StringWriter writer = new StringWriter();
-            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("Plan ID", "Plan Name", "Median Execution Time", "Average Items", "Data ID", "Created Date")
-                .build();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.DEFAULT)) {
+            printer.printRecord("Plan ID", "Plan Name", "For Date", "Data ID", "Avg Core Execution Time");
             
-            try (CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
-                for (Plan plan : plans) {
-                    csvPrinter.printRecord(
-                        plan.getId(),
-                        plan.getPlanName(),
-                        plan.getMedianExecutionTime(),
-                        plan.getAvgItems(),
-                        plan.getDataId(),
-                        plan.getCreatedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                    );
-                }
+            for (Plan plan : plans) {
+                Double avgCoreExecutionTime = calculateAvgCoreExecutionTime(plan);
+                printer.printRecord(
+                    plan.getPlanId(),
+                    plan.getPlanName(),
+                    plan.getForDate(),
+                    plan.getDataId(),
+                    avgCoreExecutionTime
+                );
             }
-            
-            String filename = "metrics_export_" + 
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".csv";
-            
-            Map<String, String> result = new HashMap<>();
-            result.put("csvData", writer.toString());
-            result.put("filename", filename);
-            
-            return result;
-            
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating CSV export", e);
         }
+        
+        return out.toByteArray();
+    }
+    
+    private Double calculateAvgCoreExecutionTime(Plan plan) {
+        if (plan.getOverrides() == null || plan.getOverrides().isEmpty()) {
+            return 0.0;
+        }
+        
+        return plan.getOverrides().stream()
+            .mapToDouble(Override::getCoreExecutionTime)
+            .average()
+            .orElse(0.0);
     }
 }

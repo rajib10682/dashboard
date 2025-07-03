@@ -1,7 +1,9 @@
 package com.metrics.dashboard.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotNull;
+import com.metrics.dashboard.validation.QuarterEndDate;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -10,55 +12,44 @@ public class Plan {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "plan_id")
+    private Long planId;
     
-    @Column(name = "plan_name", nullable = false)
+    @Column(name = "plan_name", nullable = false, unique = true)
+    @NotNull
     private String planName;
     
-    @Column(name = "median_execution_time")
-    private Double medianExecutionTime;
+    @Column(name = "for_date", nullable = false)
+    @NotNull
+    @QuarterEndDate
+    private LocalDate forDate;
     
-    @Column(name = "avg_items")
-    private Integer avgItems;
-    
-    @Column(name = "data_id")
+    @Column(name = "data_id", nullable = false)
+    @NotNull
     private Integer dataId;
-    
-    @Column(name = "created_date")
-    private LocalDateTime createdDate;
     
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Override> overrides;
     
-    public Plan() {
-        this.createdDate = LocalDateTime.now();
-    }
+    public Plan() {}
     
-    public Plan(String planName, Double medianExecutionTime, Integer avgItems, Integer dataId) {
-        this();
+    public Plan(String planName, LocalDate forDate, Integer dataId) {
         this.planName = planName;
-        this.medianExecutionTime = medianExecutionTime;
-        this.avgItems = avgItems;
+        this.forDate = forDate;
         this.dataId = dataId;
     }
     
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getPlanId() { return planId; }
+    public void setPlanId(Long planId) { this.planId = planId; }
     
     public String getPlanName() { return planName; }
     public void setPlanName(String planName) { this.planName = planName; }
     
-    public Double getMedianExecutionTime() { return medianExecutionTime; }
-    public void setMedianExecutionTime(Double medianExecutionTime) { this.medianExecutionTime = medianExecutionTime; }
-    
-    public Integer getAvgItems() { return avgItems; }
-    public void setAvgItems(Integer avgItems) { this.avgItems = avgItems; }
+    public LocalDate getForDate() { return forDate; }
+    public void setForDate(LocalDate forDate) { this.forDate = forDate; }
     
     public Integer getDataId() { return dataId; }
     public void setDataId(Integer dataId) { this.dataId = dataId; }
-    
-    public LocalDateTime getCreatedDate() { return createdDate; }
-    public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
     
     public List<Override> getOverrides() { return overrides; }
     public void setOverrides(List<Override> overrides) { this.overrides = overrides; }

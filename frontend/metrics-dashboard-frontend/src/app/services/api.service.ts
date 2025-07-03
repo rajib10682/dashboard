@@ -20,7 +20,7 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  getDashboardData(dataId?: number, page: number = 0, size: number = 10, sortBy: string = 'id', sortDir: string = 'asc'): Observable<PageResponse<Plan>> {
+  getDashboardData(dataId?: number, page: number = 0, size: number = 10, sortBy: string = 'planId', sortDir: string = 'asc'): Observable<PageResponse<Plan>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
@@ -73,7 +73,7 @@ export class ApiService {
     });
   }
 
-  deletePlan(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/plans/${id}`);
+  deletePlan(planId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/master/${planId}`);
   }
 }

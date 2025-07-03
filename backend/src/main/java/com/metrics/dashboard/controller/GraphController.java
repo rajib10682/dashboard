@@ -10,23 +10,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/graph")
+@CrossOrigin(origins = "*")
 public class GraphController {
     
     @Autowired
     private GraphService graphService;
     
     @GetMapping("/quarterly")
-    public ResponseEntity<List<TrendDataPoint>> getQuarterlyTrends() {
-        List<TrendDataPoint> trends = graphService.getQuarterlyTrends();
+    public ResponseEntity<List<TrendDataPoint>> getQuarterlyTrends(@RequestParam(required = false) Integer dataId) {
+        List<TrendDataPoint> trends = graphService.getQuarterlyTrends(dataId);
         return ResponseEntity.ok(trends);
     }
     
     @GetMapping("/daily")
-    public ResponseEntity<List<TrendDataPoint>> getDailyTrends(
-            @RequestParam(required = false) Integer dataId,
-            @RequestParam(defaultValue = "30") Integer days) {
-        
-        List<TrendDataPoint> trends = graphService.getDailyTrends(dataId, days);
+    public ResponseEntity<List<TrendDataPoint>> getDailyTrends(@RequestParam(required = false) Integer dataId) {
+        List<TrendDataPoint> trends = graphService.getDailyTrends(dataId);
         return ResponseEntity.ok(trends);
     }
 }

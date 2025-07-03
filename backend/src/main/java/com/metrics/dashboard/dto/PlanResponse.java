@@ -1,46 +1,40 @@
 package com.metrics.dashboard.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class PlanResponse {
-    private Long id;
+    private Long planId;
     private String planName;
-    private Double medianExecutionTime;
-    private Integer avgItems;
+    private LocalDate forDate;
     private Integer dataId;
-    private LocalDateTime createdDate;
+    private Double avgCoreExecutionTime;
     private String colorCode;
     
     public PlanResponse() {}
     
-    public PlanResponse(Long id, String planName, Double medianExecutionTime, 
-                       Integer avgItems, Integer dataId, LocalDateTime createdDate, String colorCode) {
-        this.id = id;
+    public PlanResponse(Long planId, String planName, LocalDate forDate, Integer dataId, Double avgCoreExecutionTime, String colorCode) {
+        this.planId = planId;
         this.planName = planName;
-        this.medianExecutionTime = medianExecutionTime;
-        this.avgItems = avgItems;
+        this.forDate = forDate;
         this.dataId = dataId;
-        this.createdDate = createdDate;
+        this.avgCoreExecutionTime = avgCoreExecutionTime;
         this.colorCode = colorCode;
     }
     
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getPlanId() { return planId; }
+    public void setPlanId(Long planId) { this.planId = planId; }
     
     public String getPlanName() { return planName; }
     public void setPlanName(String planName) { this.planName = planName; }
     
-    public Double getMedianExecutionTime() { return medianExecutionTime; }
-    public void setMedianExecutionTime(Double medianExecutionTime) { this.medianExecutionTime = medianExecutionTime; }
-    
-    public Integer getAvgItems() { return avgItems; }
-    public void setAvgItems(Integer avgItems) { this.avgItems = avgItems; }
+    public LocalDate getForDate() { return forDate; }
+    public void setForDate(LocalDate forDate) { this.forDate = forDate; }
     
     public Integer getDataId() { return dataId; }
     public void setDataId(Integer dataId) { this.dataId = dataId; }
     
-    public LocalDateTime getCreatedDate() { return createdDate; }
-    public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
+    public Double getAvgCoreExecutionTime() { return avgCoreExecutionTime; }
+    public void setAvgCoreExecutionTime(Double avgCoreExecutionTime) { this.avgCoreExecutionTime = avgCoreExecutionTime; }
     
     public String getColorCode() { return colorCode; }
     public void setColorCode(String colorCode) { this.colorCode = colorCode; }

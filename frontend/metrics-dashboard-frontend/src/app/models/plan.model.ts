@@ -1,16 +1,15 @@
 export interface Plan {
-  id: number;
+  planId: number;
   planName: string;
-  medianExecutionTime: number;
-  avgItems: number;
+  forDate: string;
   dataId: number;
-  createdDate: string;
+  avgCoreExecutionTime: number;
   colorCode: string;
 }
 
 export interface SummaryResponse {
   totalPlans: number;
-  avgMedianTime: number;
+  avgExecutionTime: number;
   totalItems: number;
 }
 

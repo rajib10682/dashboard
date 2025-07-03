@@ -9,17 +9,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/plans")
-public class PlanController {
+@RequestMapping("/api/master")
+@CrossOrigin(origins = "*")
+public class MasterController {
     
     @Autowired
     private PlanRepository planRepository;
     
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlan(@PathVariable Long id) {
-        Optional<Plan> plan = planRepository.findById(id);
+    @DeleteMapping("/{planId}")
+    public ResponseEntity<Void> deletePlan(@PathVariable Long planId) {
+        Optional<Plan> plan = planRepository.findById(planId);
         if (plan.isPresent()) {
-            planRepository.deleteById(id);
+            planRepository.deleteById(planId);
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
