@@ -58,6 +58,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "allowedHosts": ["application-development-analyzer-tunnel-qj6kt7wx.devinapps.com"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "metrics-dashboard-frontend:build:production"
