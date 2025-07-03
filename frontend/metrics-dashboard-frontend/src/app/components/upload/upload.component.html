@@ -10,14 +10,13 @@
       
       <p-fileUpload 
         name="file"
-        url="/api/upload/bulk"
         [maxFileSize]="maxFileSize"
         accept=".xlsx,.xls"
-        (onUpload)="onUpload($event)"
-        (onError)="onError($event)"
         (onSelect)="onSelect($event)"
         (onClear)="onClear()"
         [auto]="false"
+        [customUpload]="true"
+        (uploadHandler)="onUpload($event)"
         chooseLabel="Select Excel File"
         uploadLabel="Upload & Process"
         cancelLabel="Cancel"
@@ -37,7 +36,7 @@
           <li><strong>Maximum file size:</strong> 10MB</li>
           <li><strong>Excel format:</strong> .xlsx or .xls</li>
           <li><strong>Three worksheets required:</strong> "Plans", "Overrides", "Items"</li>
-          <li><strong>No special characters:</strong> !&#64;#$%^&*()</li>
+          <li><strong>No special characters:</strong> !&#64;#$%^&amp;*()</li>
         </ul>
         
         <h4>Worksheet Structure:</h4>

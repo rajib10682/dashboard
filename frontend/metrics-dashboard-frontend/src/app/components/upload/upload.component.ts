@@ -24,6 +24,10 @@ export class UploadComponent {
   onUpload(event: any) {
     const file = event.files[0];
     
+    this.messages = [
+      { severity: 'info', summary: 'Processing', detail: 'Uploading and processing file...' }
+    ];
+    
     this.apiService.bulkUpload(file).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -36,6 +40,8 @@ export class UploadComponent {
         this.messages = [
           { severity: 'success', summary: 'Success', detail: 'File processed successfully. Response file downloaded.' }
         ];
+        
+        this.uploadedFiles = event.files;
       },
       error: (error: any) => {
         console.error('Upload error:', error);
@@ -54,6 +60,7 @@ export class UploadComponent {
   
   onSelect(event: any) {
     this.messages = [];
+    this.uploadedFiles = [];
   }
   
   onClear() {
