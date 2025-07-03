@@ -1,0 +1,96 @@
+<div class="dashboard-container">
+  <div class="header-section">
+    <h1>Metrics Dashboard</h1>
+    <div class="controls">
+      <p-dropdown 
+        [options]="dataIdOptions" 
+        [(ngModel)]="selectedDataId" 
+        placeholder="Select Data ID"
+        (onChange)="onDataIdChange()"
+        optionLabel="label"
+        optionValue="value">
+      </p-dropdown>
+      <p-button 
+        label="Export CSV" 
+        icon="pi pi-download" 
+        (onClick)="exportData()"
+        class="p-button-outlined">
+      </p-button>
+      <p-button 
+        label="View Trends" 
+        icon="pi pi-chart-line" 
+        (onClick)="openTrends()"
+        class="p-button-outlined">
+      </p-button>
+    </div>
+  </div>
+
+  <div class="summary-section" *ngIf="summary">
+    <p-card header="Summary">
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Total Plans:</span>
+          <span class="summary-value">{{ summary.totalPlans }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Avg Median Time:</span>
+          <span class="summary-value">{{ summary.avgMedianTime | number:'1.2-2' }}ms</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Items:</span>
+          <span class="summary-value">{{ summary.totalItems }}</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="table-section">
+    <p-table 
+      [value]="plans" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="totalRecords"
+      [lazy]="true"
+      (onLazyLoad)="loadDashboardData($event)"
+      [sortMode]="'single'"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id">Plan ID <p-sortIcon field="id"></p-sortIcon></th>
+          <th pSortableColumn="planName">Plan Name <p-sortIcon field="planName"></p-sortIcon></th>
+          <th pSortableColumn="medianExecutionTime">Median Execution Time <p-sortIcon field="medianExecutionTime"></p-sortIcon></th>
+          <th pSortableColumn="avgItems">Avg Items <p-sortIcon field="avgItems"></p-sortIcon></th>
+          <th pSortableColumn="dataId">Data ID <p-sortIcon field="dataId"></p-sortIcon></th>
+          <th pSortableColumn="createdDate">Created Date <p-sortIcon field="createdDate"></p-sortIcon></th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-plan>
+        <tr>
+          <td>{{ plan.id }}</td>
+          <td>{{ plan.planName }}</td>
+          <td>
+            <p-tag 
+              [value]="plan.medianExecutionTime + 'ms'" 
+              [severity]="getColorSeverity(plan.colorCode)">
+            </p-tag>
+          </td>
+          <td>{{ plan.avgItems }}</td>
+          <td>{{ plan.dataId }}</td>
+          <td>{{ plan.createdDate | date:'short' }}</td>
+          <td>
+            <p-button 
+              icon="pi pi-trash" 
+              class="p-button-rounded p-button-danger p-button-text"
+              (onClick)="deletePlan(plan.id)"
+              pTooltip="Delete Plan">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

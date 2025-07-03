@@ -1,0 +1,25 @@
+<div class="app-container">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <h2>Metrics Dashboard</h2>
+    </div>
+    <div class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="pi pi-chart-bar"></i>
+        Dashboard
+      </a>
+      <a routerLink="/configuration" routerLinkActive="active" class="nav-link">
+        <i class="pi pi-cog"></i>
+        Configuration
+      </a>
+      <a routerLink="/trends" routerLinkActive="active" class="nav-link">
+        <i class="pi pi-chart-line"></i>
+        Trends
+      </a>
+    </div>
+  </nav>
+  
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,101 @@
+<div class="configuration-container">
+  <div class="header-section">
+    <h1>Threshold Configuration</h1>
+    <p>Configure the RAG (Red/Amber/Green) thresholds for execution time color coding</p>
+  </div>
+
+  <div class="config-section">
+    <p-card header="RAG Threshold Settings">
+      <div class="threshold-form">
+        <div class="threshold-item red">
+          <label for="redThreshold">Red Threshold (ms)</label>
+          <p-inputNumber 
+            id="redThreshold"
+            [(ngModel)]="thresholds.redThreshold"
+            [min]="1"
+            [max]="1000"
+            suffix=" ms"
+            placeholder="Enter red threshold">
+          </p-inputNumber>
+          <small>Execution times above this value will be marked as RED</small>
+        </div>
+
+        <div class="threshold-item amber">
+          <label for="amberThreshold">Amber Threshold (ms)</label>
+          <p-inputNumber 
+            id="amberThreshold"
+            [(ngModel)]="thresholds.amberThreshold"
+            [min]="1"
+            [max]="1000"
+            suffix=" ms"
+            placeholder="Enter amber threshold">
+          </p-inputNumber>
+          <small>Execution times above this value (but below red) will be marked as AMBER</small>
+        </div>
+
+        <div class="threshold-item green">
+          <label for="greenThreshold">Green Threshold (ms)</label>
+          <p-inputNumber 
+            id="greenThreshold"
+            [(ngModel)]="thresholds.greenThreshold"
+            [min]="1"
+            [max]="1000"
+            suffix=" ms"
+            placeholder="Enter green threshold">
+          </p-inputNumber>
+          <small>Execution times at or below this value will be marked as GREEN</small>
+        </div>
+      </div>
+
+      <div class="validation-info">
+        <p-message 
+          *ngIf="errorMessage" 
+          severity="error" 
+          [text]="errorMessage">
+        </p-message>
+        
+        <p-message 
+          *ngIf="saveSuccess" 
+          severity="success" 
+          text="Threshold configuration saved successfully!">
+        </p-message>
+      </div>
+
+      <div class="button-section">
+        <p-button 
+          label="Save Configuration" 
+          icon="pi pi-save"
+          (onClick)="saveThresholds()"
+          [loading]="loading"
+          class="p-button-success">
+        </p-button>
+        
+        <p-button 
+          label="Reset to Defaults" 
+          icon="pi pi-refresh"
+          (onClick)="resetToDefaults()"
+          class="p-button-outlined">
+        </p-button>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="preview-section">
+    <p-card header="Color Coding Preview">
+      <div class="preview-grid">
+        <div class="preview-item">
+          <span class="color-indicator red-indicator"></span>
+          <span class="preview-label">Red: &gt; {{ thresholds.redThreshold }}ms</span>
+        </div>
+        <div class="preview-item">
+          <span class="color-indicator amber-indicator"></span>
+          <span class="preview-label">Amber: {{ thresholds.amberThreshold }} - {{ thresholds.redThreshold }}ms</span>
+        </div>
+        <div class="preview-item">
+          <span class="color-indicator green-indicator"></span>
+          <span class="preview-label">Green: &le; {{ thresholds.greenThreshold }}ms</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</div>

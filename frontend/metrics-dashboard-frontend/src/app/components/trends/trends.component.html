@@ -1,0 +1,77 @@
+<div class="trends-container">
+  <div class="header-section">
+    <h1>Execution Time Trends</h1>
+    <p>Visualize median execution time trends over different time periods</p>
+    <p-button 
+      label="Refresh Data" 
+      icon="pi pi-refresh" 
+      (onClick)="refreshData()"
+      class="p-button-outlined">
+    </p-button>
+  </div>
+
+  <div class="trends-content">
+    <p-tabView>
+      <p-tabPanel header="Quarterly Trends" leftIcon="pi pi-calendar">
+        <p-card header="Quarterly Median Execution Time">
+          <div class="chart-container">
+            <p-chart 
+              type="line" 
+              [data]="quarterlyData" 
+              [options]="chartOptions"
+              width="100%"
+              height="400px">
+            </p-chart>
+          </div>
+          <div class="chart-info">
+            <p><i class="pi pi-info-circle"></i> Shows median execution time trends over the last 8 quarters</p>
+          </div>
+        </p-card>
+      </p-tabPanel>
+
+      <p-tabPanel header="Daily Trends" leftIcon="pi pi-chart-line">
+        <p-card header="Daily Median Execution Time">
+          <div class="daily-controls">
+            <div class="control-group">
+              <label for="dataIdSelect">Data ID:</label>
+              <p-dropdown 
+                id="dataIdSelect"
+                [options]="dataIdOptions" 
+                [(ngModel)]="selectedDataId" 
+                placeholder="Select Data ID"
+                (onChange)="onDailyFiltersChange()"
+                optionLabel="label"
+                optionValue="value">
+              </p-dropdown>
+            </div>
+            
+            <div class="control-group">
+              <label for="daysSelect">Time Period:</label>
+              <p-dropdown 
+                id="daysSelect"
+                [options]="daysOptions" 
+                [(ngModel)]="selectedDays" 
+                (onChange)="onDailyFiltersChange()"
+                optionLabel="label"
+                optionValue="value">
+              </p-dropdown>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <p-chart 
+              type="line" 
+              [data]="dailyData" 
+              [options]="chartOptions"
+              width="100%"
+              height="400px">
+            </p-chart>
+          </div>
+          <div class="chart-info">
+            <p><i class="pi pi-info-circle"></i> Shows daily median execution time for the selected period and data ID</p>
+          </div>
+        </p-card>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>

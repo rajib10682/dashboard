@@ -1,0 +1,80 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-section h1 {
+  margin: 0;
+  color: #333;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.summary-section {
+  margin-bottom: 20px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.summary-label {
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.summary-value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+.table-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+:host ::ng-deep .p-table .p-table-thead > tr > th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+}
+
+:host ::ng-deep .p-table .p-table-tbody > tr:hover {
+  background-color: #f8f9fa;
+}
+
+:host ::ng-deep .p-tag.p-tag-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+:host ::ng-deep .p-tag.p-tag-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+:host ::ng-deep .p-tag.p-tag-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
