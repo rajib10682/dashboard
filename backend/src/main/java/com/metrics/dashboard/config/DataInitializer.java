@@ -85,12 +85,12 @@ public class DataInitializer implements CommandLineRunner {
                 "STANDARD"
             );
             
-            Item item1 = new Item("ITEM_" + i + "_1", override1, "USD", "system", "system");
+            Item item1 = new Item("ITEM_" + i + "_1", override1, "USD", "system", "system", planNames[i] + " - Item 1");
             item1.setItemValueMonth1(100.0 + random.nextDouble() * 50);
             item1.setItemValueMonth2(110.0 + random.nextDouble() * 50);
             item1.setItemValueMonth3(120.0 + random.nextDouble() * 50);
             
-            Item item2 = new Item("ITEM_" + i + "_2", override2, "EUR", "system", "system");
+            Item item2 = new Item("ITEM_" + i + "_2", override2, "EUR", "system", "system", planNames[i] + " - Item 2");
             item2.setItemValueMonth1(80.0 + random.nextDouble() * 40);
             item2.setItemValueMonth2(85.0 + random.nextDouble() * 40);
             item2.setItemValueMonth3(90.0 + random.nextDouble() * 40);

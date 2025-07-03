@@ -40,6 +40,10 @@ public class Item {
     @NotNull
     private String updatedBy;
     
+    @Column(name = "item_name", nullable = false, unique = true)
+    @NotNull
+    private String itemName;
+    
     @Column(name = "item_value_month_1") private Double itemValueMonth1;
     @Column(name = "item_value_month_2") private Double itemValueMonth2;
     @Column(name = "item_value_month_3") private Double itemValueMonth3;
@@ -66,13 +70,14 @@ public class Item {
         this.updatedTimestamp = LocalDateTime.now();
     }
     
-    public Item(String itemId, Override override, String currencyCode, String createdBy, String updatedBy) {
+    public Item(String itemId, Override override, String currencyCode, String createdBy, String updatedBy, String itemName) {
         this();
         this.itemId = itemId;
         this.override = override;
         this.currencyCode = currencyCode;
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
+        this.itemName = itemName;
     }
     
     public String getItemId() { return itemId; }
@@ -155,4 +160,7 @@ public class Item {
     
     public Double getItemValueMonth20() { return itemValueMonth20; }
     public void setItemValueMonth20(Double itemValueMonth20) { this.itemValueMonth20 = itemValueMonth20; }
+    
+    public String getItemName() { return itemName; }
+    public void setItemName(String itemName) { this.itemName = itemName; }
 }

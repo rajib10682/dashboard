@@ -76,4 +76,13 @@ export class ApiService {
   deletePlan(planId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/master/${planId}`);
   }
+
+  bulkUpload(file: File): Observable<Blob> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post(`${this.apiUrl}/upload/bulk`, formData, {
+      responseType: 'blob'
+    });
+  }
 }

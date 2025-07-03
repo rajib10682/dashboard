@@ -1,0 +1,73 @@
+.upload-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.header-section h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.header-section p {
+  color: #7f8c8d;
+  font-size: 1.1em;
+}
+
+.upload-section {
+  margin-bottom: 30px;
+}
+
+.file-requirements {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.file-requirements h4 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.file-requirements ul {
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.file-requirements li {
+  margin-bottom: 8px;
+  color: #34495e;
+}
+
+.worksheet-info {
+  margin: 20px 0;
+}
+
+.worksheet-item {
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.worksheet-item h5 {
+  color: #2c3e50;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.worksheet-item p {
+  color: #6c757d;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}

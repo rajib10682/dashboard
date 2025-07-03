@@ -1,0 +1,71 @@
+<div class="upload-container">
+  <div class="header-section">
+    <h1>Bulk Upload/Download</h1>
+    <p>Upload Excel file with three worksheets: Plans, Overrides, and Items</p>
+  </div>
+
+  <div class="upload-section">
+    <p-card header="File Upload">
+      <p-messages [(value)]="messages"></p-messages>
+      
+      <p-fileUpload 
+        name="file"
+        url="/api/upload/bulk"
+        [maxFileSize]="maxFileSize"
+        accept=".xlsx,.xls"
+        (onUpload)="onUpload($event)"
+        (onError)="onError($event)"
+        (onSelect)="onSelect($event)"
+        (onClear)="onClear()"
+        [auto]="false"
+        chooseLabel="Select Excel File"
+        uploadLabel="Upload & Process"
+        cancelLabel="Cancel"
+        [showUploadButton]="true"
+        [showCancelButton]="true">
+        
+        <ng-template pTemplate="content">
+          <ul *ngIf="uploadedFiles.length">
+            <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
+          </ul>
+        </ng-template>
+      </p-fileUpload>
+      
+      <div class="file-requirements">
+        <h4>File Requirements:</h4>
+        <ul>
+          <li><strong>Maximum file size:</strong> 10MB</li>
+          <li><strong>Excel format:</strong> .xlsx or .xls</li>
+          <li><strong>Three worksheets required:</strong> "Plans", "Overrides", "Items"</li>
+          <li><strong>No special characters:</strong> !&#64;#$%^&*()</li>
+        </ul>
+        
+        <h4>Worksheet Structure:</h4>
+        <div class="worksheet-info">
+          <div class="worksheet-item">
+            <h5>Plans Worksheet:</h5>
+            <p>Plan_Name, For_Date (dd-MMM-yyyy), Data_ID, Delete (D for delete)</p>
+          </div>
+          <div class="worksheet-item">
+            <h5>Overrides Worksheet:</h5>
+            <p>Plan_Name, Override_Name, Total_Execution_Time, On_Hold_Time, Core_Execution_Time, Request_Type</p>
+          </div>
+          <div class="worksheet-item">
+            <h5>Items Worksheet:</h5>
+            <p>Override_Name, Item_Name, Currency_Code, Create_Timestamp, Updated_Timestamp, Created_By, Updated_By, Item_Value_Month_1 to Item_Value_Month_20</p>
+          </div>
+        </div>
+        
+        <h4>Processing Rules:</h4>
+        <ul>
+          <li>Plans are processed first, then Overrides, then Items</li>
+          <li>If a Plan fails, all its child Overrides and Items are skipped</li>
+          <li>If an Override fails, all its child Items are skipped</li>
+          <li>For_Date must be a quarter-end date (Mar 31, Jun 30, Sep 30, Dec 31)</li>
+          <li>Currency_Code must be exactly 3 characters</li>
+          <li>Response Excel file will include Status and Reason columns</li>
+        </ul>
+      </div>
+    </p-card>
+  </div>
+</div>
