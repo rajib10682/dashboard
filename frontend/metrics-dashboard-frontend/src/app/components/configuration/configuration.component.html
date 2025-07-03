@@ -8,39 +8,39 @@
     <p-card header="RAG Threshold Settings">
       <div class="threshold-form">
         <div class="threshold-item red">
-          <label for="redThreshold">Red Threshold (ms)</label>
+          <label for="redThreshold">Red Threshold (s)</label>
           <p-inputNumber 
             id="redThreshold"
             [(ngModel)]="thresholds.redThreshold"
             [min]="1"
             [max]="1000"
-            suffix=" ms"
+            suffix=" s"
             placeholder="Enter red threshold">
           </p-inputNumber>
           <small>Execution times above this value will be marked as RED</small>
         </div>
 
         <div class="threshold-item amber">
-          <label for="amberThreshold">Amber Threshold (ms)</label>
+          <label for="amberThreshold">Amber Threshold (s)</label>
           <p-inputNumber 
             id="amberThreshold"
             [(ngModel)]="thresholds.amberThreshold"
             [min]="1"
             [max]="1000"
-            suffix=" ms"
+            suffix=" s"
             placeholder="Enter amber threshold">
           </p-inputNumber>
           <small>Execution times above this value (but below red) will be marked as AMBER</small>
         </div>
 
         <div class="threshold-item green">
-          <label for="greenThreshold">Green Threshold (ms)</label>
+          <label for="greenThreshold">Green Threshold (s)</label>
           <p-inputNumber 
             id="greenThreshold"
             [(ngModel)]="thresholds.greenThreshold"
             [min]="1"
             [max]="1000"
-            suffix=" ms"
+            suffix=" s"
             placeholder="Enter green threshold">
           </p-inputNumber>
           <small>Execution times at or below this value will be marked as GREEN</small>
@@ -85,15 +85,15 @@
       <div class="preview-grid">
         <div class="preview-item">
           <span class="color-indicator red-indicator"></span>
-          <span class="preview-label">Red: &gt; {{ thresholds.redThreshold }}ms</span>
+          <span class="preview-label">Red: &gt; {{ thresholds.redThreshold }}s</span>
         </div>
         <div class="preview-item">
           <span class="color-indicator amber-indicator"></span>
-          <span class="preview-label">Amber: {{ thresholds.amberThreshold }} - {{ thresholds.redThreshold }}ms</span>
+          <span class="preview-label">Amber: {{ thresholds.amberThreshold }} - {{ thresholds.redThreshold }}s</span>
         </div>
         <div class="preview-item">
           <span class="color-indicator green-indicator"></span>
-          <span class="preview-label">Green: &le; {{ thresholds.greenThreshold }}ms</span>
+          <span class="preview-label">Green: &le; {{ thresholds.greenThreshold }}s</span>
         </div>
       </div>
     </p-card>
