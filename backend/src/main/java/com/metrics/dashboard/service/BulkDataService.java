@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -376,6 +377,11 @@ public class BulkDataService {
         Object value = rowData.get(key);
         if (value == null) {
             return null;
+        }
+        if (value instanceof Date) {
+            Date date = (Date) value;
+            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            return localDate.format(DATE_FORMATTER);
         }
         if (value instanceof Number) {
             return String.valueOf(((Number) value).longValue());
