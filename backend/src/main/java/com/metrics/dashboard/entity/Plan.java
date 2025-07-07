@@ -3,6 +3,7 @@ package com.metrics.dashboard.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import com.metrics.dashboard.validation.QuarterEndDate;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class Plan {
     private Integer dataId;
     
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Override> overrides;
     
     public Plan() {}

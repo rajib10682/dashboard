@@ -5,6 +5,7 @@ import com.metrics.dashboard.repository.OverrideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,34 @@ public class SecondaryController {
         if (override.isPresent()) {
             overrideRepository.deleteById(overrideId);
             return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @PostMapping
+    public ResponseEntity<Override> createOverride(@Valid @RequestBody Override override) {
+        try {
+            Override savedOverride = overrideRepository.save(override);
+            return ResponseEntity.ok(savedOverride);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PutMapping("/{overrideId}")
+    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @RequestBody Override override) {
+        Optional<Override> existingOverride = overrideRepository.findById(overrideId);
+        if (existingOverride.isPresent()) {
+            Override existing = existingOverride.get();
+            override.setOverrideId(overrideId);
+            override.setPlan(existing.getPlan()); // Preserve the existing plan relationship
+            try {
+                Override savedOverride = overrideRepository.save(override);
+                return ResponseEntity.ok(savedOverride);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().build();
+            }
         } else {
             return ResponseEntity.notFound().build();
         }

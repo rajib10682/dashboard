@@ -59,7 +59,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "allowedHosts": ["application-development-analyzer-tunnel-qj6kt7wx.devinapps.com"]
+            "allowedHosts": ["application-development-analyzer-tunnel-r4i120z1.devinapps.com"]
           },
           "configurations": {
             "production": {

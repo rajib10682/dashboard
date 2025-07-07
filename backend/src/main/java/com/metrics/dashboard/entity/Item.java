@@ -3,6 +3,7 @@ package com.metrics.dashboard.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,6 +18,7 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "override_id", nullable = false)
     @NotNull
+    @JsonBackReference
     private Override override;
     
     @Column(name = "currency_code", length = 3, nullable = false)

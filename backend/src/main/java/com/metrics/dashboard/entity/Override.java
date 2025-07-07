@@ -2,6 +2,7 @@ package com.metrics.dashboard.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.List;
 
 @Entity
@@ -16,6 +17,7 @@ public class Override {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false)
     @NotNull
+    @JsonBackReference
     private Plan plan;
     
     @Column(name = "override_name", nullable = false)
