@@ -165,7 +165,20 @@ public class BulkDataService {
                     override.setCoreExecutionTime(coreExecTime);
                     override.setRequestType(requestType);
                 } else {
+                    if (parentPlan.get() == null || overrideName == null || totalExecTime == null || 
+                        onHoldTime == null || coreExecTime == null || requestType == null) {
+                        statusList.add("Error");
+                        reasonList.add("Required Override fields cannot be null");
+                        continue;
+                    }
                     override = new Override(parentPlan.get(), overrideName, totalExecTime, onHoldTime, coreExecTime, requestType);
+                }
+                
+                String entityValidationError = validateOverrideEntity(override);
+                if (entityValidationError != null) {
+                    statusList.add("Error");
+                    reasonList.add(entityValidationError);
+                    continue;
                 }
                 
                 overrideRepository.save(override);
@@ -311,6 +324,11 @@ public class BulkDataService {
             return "Invalid execution time values";
         }
         
+        String requestType = getString(rowData, "Request_Type");
+        if (requestType == null || requestType.trim().isEmpty()) {
+            return "Request_Type is required";
+        }
+        
         return null;
     }
     
@@ -402,5 +420,27 @@ public class BulkDataService {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+    
+    private String validateOverrideEntity(Override override) {
+        if (override.getPlan() == null) {
+            return "Plan relationship is required";
+        }
+        if (override.getOverrideName() == null || override.getOverrideName().trim().isEmpty()) {
+            return "Override_Name is required";
+        }
+        if (override.getTotalExecutionTime() == null) {
+            return "Total_Execution_Time is required";
+        }
+        if (override.getOnHoldTime() == null) {
+            return "On_Hold_Time is required";
+        }
+        if (override.getCoreExecutionTime() == null) {
+            return "Core_Execution_Time is required";
+        }
+        if (override.getRequestType() == null || override.getRequestType().trim().isEmpty()) {
+            return "Request_Type is required";
+        }
+        return null;
     }
 }
