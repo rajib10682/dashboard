@@ -5,6 +5,7 @@ import com.metrics.dashboard.repository.OverrideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class SecondaryController {
     @PostMapping
     public ResponseEntity<Override> createOverride(@Valid @RequestBody Override override) {
         try {
+            override.setOverrideId(null);
             Override savedOverride = overrideRepository.save(override);
             return ResponseEntity.ok(savedOverride);
         } catch (Exception e) {
@@ -52,14 +54,18 @@ public class SecondaryController {
     }
     
     @PutMapping("/{overrideId}")
-    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @Valid @RequestBody Override override) {
+    @Transactional
+    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @RequestBody Override override) {
         Optional<Override> existingOverride = overrideRepository.findById(overrideId);
         if (existingOverride.isPresent()) {
             Override existing = existingOverride.get();
-            override.setOverrideId(overrideId);
-            override.setPlan(existing.getPlan()); // Preserve the existing plan relationship
+            existing.setOverrideName(override.getOverrideName());
+            existing.setTotalExecutionTime(override.getTotalExecutionTime());
+            existing.setOnHoldTime(override.getOnHoldTime());
+            existing.setCoreExecutionTime(override.getCoreExecutionTime());
+            existing.setRequestType(override.getRequestType());
             try {
-                Override savedOverride = overrideRepository.save(override);
+                Override savedOverride = overrideRepository.save(existing);
                 return ResponseEntity.ok(savedOverride);
             } catch (Exception e) {
                 return ResponseEntity.badRequest().build();
