@@ -52,7 +52,7 @@ public class SecondaryController {
     }
     
     @PutMapping("/{overrideId}")
-    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @RequestBody Override override) {
+    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @Valid @RequestBody Override override) {
         Optional<Override> existingOverride = overrideRepository.findById(overrideId);
         if (existingOverride.isPresent()) {
             Override existing = existingOverride.get();
