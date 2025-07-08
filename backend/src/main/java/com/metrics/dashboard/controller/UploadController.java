@@ -2,6 +2,7 @@ package com.metrics.dashboard.controller;
 
 import com.metrics.dashboard.service.BulkDataService;
 import com.metrics.dashboard.service.ExcelProcessingService;
+import com.metrics.dashboard.service.ParallelBulkDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,7 +25,10 @@ public class UploadController {
     @Autowired
     private BulkDataService bulkDataService;
     
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    @Autowired
+    private ParallelBulkDataService parallelBulkDataService;
+    
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
     
     @PostMapping("/bulk")
     public ResponseEntity<byte[]> bulkUpload(@RequestParam("file") MultipartFile file) {
@@ -45,7 +49,7 @@ public class UploadController {
             byte[] fileData = file.getBytes();
             Map<String, List<Map<String, Object>>> excelData = excelProcessingService.parseExcelFile(fileData);
             
-            Map<String, List<String>> processingResult = bulkDataService.processBulkData(excelData);
+            Map<String, List<String>> processingResult = parallelBulkDataService.processParallelBulkData(excelData);
             
             Map<String, List<String>> statusMap = new HashMap<>();
             Map<String, List<String>> reasonMap = new HashMap<>();

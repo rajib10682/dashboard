@@ -30,7 +30,7 @@ public class BulkDataService {
     @Autowired
     private ItemRepository itemRepository;
     
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     
     @Transactional
@@ -259,7 +259,7 @@ public class BulkDataService {
         return statusList;
     }
     
-    private String validatePlanData(String planName, String forDateStr, String dataIdStr) {
+    public String validatePlanData(String planName, String forDateStr, String dataIdStr) {
         if (planName == null || planName.trim().isEmpty()) {
             return "Plan_Name is required";
         }
@@ -295,7 +295,7 @@ public class BulkDataService {
         return null;
     }
     
-    private String validateOverrideData(Map<String, Object> rowData) {
+    public String validateOverrideData(Map<String, Object> rowData) {
         String overrideName = getString(rowData, "Override_Name");
         if (overrideName == null || overrideName.trim().isEmpty()) {
             return "Override_Name is required";
@@ -332,7 +332,7 @@ public class BulkDataService {
         return null;
     }
     
-    private String validateItemData(Map<String, Object> rowData) {
+    public String validateItemData(Map<String, Object> rowData) {
         String itemName = getString(rowData, "Item_Name");
         if (itemName == null || itemName.trim().isEmpty()) {
             return "Item_Name is required";
@@ -351,7 +351,7 @@ public class BulkDataService {
         return null;
     }
     
-    private void setItemValues(Item item, Map<String, Object> rowData) {
+    public void setItemValues(Item item, Map<String, Object> rowData) {
         for (int i = 1; i <= 20; i++) {
             String columnName = "Item_Value_Month_" + i;
             Double value = getDouble(rowData, columnName);
@@ -391,7 +391,7 @@ public class BulkDataService {
                (month == 12 && day == 31);
     }
     
-    private String getString(Map<String, Object> rowData, String key) {
+    public String getString(Map<String, Object> rowData, String key) {
         Object value = rowData.get(key);
         if (value == null) {
             return null;
@@ -407,7 +407,7 @@ public class BulkDataService {
         return value.toString().trim();
     }
     
-    private Double getDouble(Map<String, Object> rowData, String key) {
+    public Double getDouble(Map<String, Object> rowData, String key) {
         Object value = rowData.get(key);
         if (value == null) {
             return null;
@@ -422,7 +422,7 @@ public class BulkDataService {
         }
     }
     
-    private String validateOverrideEntity(Override override) {
+    public String validateOverrideEntity(Override override) {
         if (override.getPlan() == null) {
             return "Plan relationship is required";
         }
