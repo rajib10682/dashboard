@@ -61,59 +61,84 @@ public class BulkDataService {
         List<String> statusList = new ArrayList<>();
         List<String> reasonList = new ArrayList<>();
         
-        for (Map<String, Object> rowData : planData) {
-            try {
-                String planName = getString(rowData, "Plan_Name");
-                String forDateStr = getString(rowData, "For_Date");
-                String dataIdStr = getString(rowData, "Data_ID");
-                String deleteFlag = getString(rowData, "Delete");
-                
-                String validationError = validatePlanData(planName, forDateStr, dataIdStr);
-                if (validationError != null) {
-                    statusList.add("Error");
-                    reasonList.add(validationError);
-                    continue;
-                }
-                
-                if ("D".equalsIgnoreCase(deleteFlag)) {
-                    Optional<Plan> existingPlan = planRepository.findByPlanName(planName);
-                    if (existingPlan.isPresent()) {
-                        planRepository.delete(existingPlan.get());
-                        statusList.add("Success");
-                        reasonList.add("Plan deleted successfully");
-                    } else {
+        long startTime = System.currentTimeMillis();
+        System.out.println("Phase 1: Starting batch processing of " + planData.size() + " plans");
+        
+        List<List<Map<String, Object>>> batches = partitionDataIntoBatches(planData, 1000);
+        
+        for (List<Map<String, Object>> batch : batches) {
+            List<Plan> plansToSave = new ArrayList<>();
+            List<Plan> plansToDelete = new ArrayList<>();
+            
+            for (Map<String, Object> rowData : batch) {
+                try {
+                    String planName = getString(rowData, "Plan_Name");
+                    String forDateStr = getString(rowData, "For_Date");
+                    String dataIdStr = getString(rowData, "Data_ID");
+                    String deleteFlag = getString(rowData, "Delete");
+                    
+                    String validationError = validatePlanData(planName, forDateStr, dataIdStr);
+                    if (validationError != null) {
                         statusList.add("Error");
-                        reasonList.add("Plan not found for deletion");
+                        reasonList.add(validationError);
+                        continue;
                     }
-                } else {
-                    LocalDate forDate = LocalDate.parse(forDateStr, DATE_FORMATTER);
-                    Integer dataId = Integer.parseInt(dataIdStr);
                     
-                    Optional<Plan> existingPlan = planRepository.findByPlanName(planName);
-                    Plan plan;
-                    
-                    if (existingPlan.isPresent()) {
-                        plan = existingPlan.get();
-                        plan.setForDate(forDate);
-                        plan.setDataId(dataId);
+                    if ("D".equalsIgnoreCase(deleteFlag)) {
+                        Optional<Plan> existingPlan = planRepository.findByPlanName(planName);
+                        if (existingPlan.isPresent()) {
+                            plansToDelete.add(existingPlan.get());
+                            statusList.add("Success");
+                            reasonList.add("Plan deleted successfully");
+                        } else {
+                            statusList.add("Error");
+                            reasonList.add("Plan not found for deletion");
+                        }
                     } else {
-                        plan = new Plan();
-                        plan.setPlanName(planName);
-                        plan.setForDate(forDate);
-                        plan.setDataId(dataId);
+                        LocalDate forDate = LocalDate.parse(forDateStr, DATE_FORMATTER);
+                        Integer dataId = Integer.parseInt(dataIdStr);
+                        
+                        Optional<Plan> existingPlan = planRepository.findByPlanName(planName);
+                        Plan plan;
+                        
+                        if (existingPlan.isPresent()) {
+                            plan = existingPlan.get();
+                            plan.setForDate(forDate);
+                            plan.setDataId(dataId);
+                            statusList.add("Success");
+                            reasonList.add("Plan updated successfully");
+                        } else {
+                            plan = new Plan();
+                            plan.setPlanName(planName);
+                            plan.setForDate(forDate);
+                            plan.setDataId(dataId);
+                            statusList.add("Success");
+                            reasonList.add("Plan created successfully");
+                        }
+                        
+                        plansToSave.add(plan);
+                        successfulPlans.add(planName);
                     }
                     
-                    planRepository.save(plan);
-                    successfulPlans.add(planName);
-                    statusList.add("Success");
-                    reasonList.add(existingPlan.isPresent() ? "Plan updated successfully" : "Plan created successfully");
+                } catch (Exception e) {
+                    statusList.add("Error");
+                    reasonList.add("Processing error: " + e.getMessage());
                 }
-                
-            } catch (Exception e) {
-                statusList.add("Error");
-                reasonList.add("Processing error: " + e.getMessage());
+            }
+            
+            if (!plansToSave.isEmpty()) {
+                planRepository.saveAll(plansToSave);
+                System.out.println("Phase 1: Batch saved " + plansToSave.size() + " plans");
+            }
+            
+            if (!plansToDelete.isEmpty()) {
+                planRepository.deleteAll(plansToDelete);
+                System.out.println("Phase 1: Batch deleted " + plansToDelete.size() + " plans");
             }
         }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Phase 1: Completed plan processing in " + (endTime - startTime) + "ms");
         
         reasonMap.put("Plans", reasonList);
         return statusList;
@@ -124,73 +149,92 @@ public class BulkDataService {
         List<String> statusList = new ArrayList<>();
         List<String> reasonList = new ArrayList<>();
         
-        for (Map<String, Object> rowData : overrideData) {
-            try {
-                String planName = getString(rowData, "Plan_Name");
-                String overrideName = getString(rowData, "Override_Name");
-                
-                if (!successfulPlans.contains(planName)) {
-                    statusList.add("Error");
-                    reasonList.add("Parent Plan failed or not found: " + planName);
-                    continue;
-                }
-                
-                String validationError = validateOverrideData(rowData);
-                if (validationError != null) {
-                    statusList.add("Error");
-                    reasonList.add(validationError);
-                    continue;
-                }
-                
-                Optional<Plan> parentPlan = planRepository.findByPlanName(planName);
-                if (!parentPlan.isPresent()) {
-                    statusList.add("Error");
-                    reasonList.add("Parent Plan not found: " + planName);
-                    continue;
-                }
-                
-                Double totalExecTime = getDouble(rowData, "Total_Execution_Time");
-                Double onHoldTime = getDouble(rowData, "On_Hold_Time");
-                Double coreExecTime = getDouble(rowData, "Core_Execution_Time");
-                String requestType = getString(rowData, "Request_Type");
-                
-                Optional<Override> existingOverride = overrideRepository.findByOverrideName(overrideName);
-                Override override;
-                
-                if (existingOverride.isPresent()) {
-                    override = existingOverride.get();
-                    override.setPlan(parentPlan.get());
-                    override.setTotalExecutionTime(totalExecTime);
-                    override.setOnHoldTime(onHoldTime);
-                    override.setCoreExecutionTime(coreExecTime);
-                    override.setRequestType(requestType);
-                } else {
-                    if (parentPlan.get() == null || overrideName == null || totalExecTime == null || 
-                        onHoldTime == null || coreExecTime == null || requestType == null) {
+        long startTime = System.currentTimeMillis();
+        System.out.println("Phase 1: Starting batch processing of " + overrideData.size() + " overrides");
+        
+        List<List<Map<String, Object>>> batches = partitionDataIntoBatches(overrideData, 1000);
+        
+        for (List<Map<String, Object>> batch : batches) {
+            List<Override> overridesToSave = new ArrayList<>();
+            
+            for (Map<String, Object> rowData : batch) {
+                try {
+                    String planName = getString(rowData, "Plan_Name");
+                    String overrideName = getString(rowData, "Override_Name");
+                    
+                    if (!successfulPlans.contains(planName)) {
                         statusList.add("Error");
-                        reasonList.add("Required Override fields cannot be null");
+                        reasonList.add("Parent Plan failed or not found: " + planName);
                         continue;
                     }
-                    override = new Override(parentPlan.get(), overrideName, totalExecTime, onHoldTime, coreExecTime, requestType);
-                }
-                
-                String entityValidationError = validateOverrideEntity(override);
-                if (entityValidationError != null) {
+                    
+                    String validationError = validateOverrideData(rowData);
+                    if (validationError != null) {
+                        statusList.add("Error");
+                        reasonList.add(validationError);
+                        continue;
+                    }
+                    
+                    Optional<Plan> parentPlan = planRepository.findByPlanName(planName);
+                    if (!parentPlan.isPresent()) {
+                        statusList.add("Error");
+                        reasonList.add("Parent Plan not found: " + planName);
+                        continue;
+                    }
+                    
+                    Double totalExecTime = getDouble(rowData, "Total_Execution_Time");
+                    Double onHoldTime = getDouble(rowData, "On_Hold_Time");
+                    Double coreExecTime = getDouble(rowData, "Core_Execution_Time");
+                    String requestType = getString(rowData, "Request_Type");
+                    
+                    Optional<Override> existingOverride = overrideRepository.findByOverrideName(overrideName);
+                    Override override;
+                    
+                    if (existingOverride.isPresent()) {
+                        override = existingOverride.get();
+                        override.setPlan(parentPlan.get());
+                        override.setTotalExecutionTime(totalExecTime);
+                        override.setOnHoldTime(onHoldTime);
+                        override.setCoreExecutionTime(coreExecTime);
+                        override.setRequestType(requestType);
+                        statusList.add("Success");
+                        reasonList.add("Override updated successfully");
+                    } else {
+                        if (parentPlan.get() == null || overrideName == null || totalExecTime == null || 
+                            onHoldTime == null || coreExecTime == null || requestType == null) {
+                            statusList.add("Error");
+                            reasonList.add("Required Override fields cannot be null");
+                            continue;
+                        }
+                        override = new Override(parentPlan.get(), overrideName, totalExecTime, onHoldTime, coreExecTime, requestType);
+                        statusList.add("Success");
+                        reasonList.add("Override created successfully");
+                    }
+                    
+                    String entityValidationError = validateOverrideEntity(override);
+                    if (entityValidationError != null) {
+                        statusList.add("Error");
+                        reasonList.add(entityValidationError);
+                        continue;
+                    }
+                    
+                    overridesToSave.add(override);
+                    successfulOverrides.add(overrideName);
+                    
+                } catch (Exception e) {
                     statusList.add("Error");
-                    reasonList.add(entityValidationError);
-                    continue;
+                    reasonList.add("Processing error: " + e.getMessage());
                 }
-                
-                overrideRepository.save(override);
-                successfulOverrides.add(overrideName);
-                statusList.add("Success");
-                reasonList.add(existingOverride.isPresent() ? "Override updated successfully" : "Override created successfully");
-                
-            } catch (Exception e) {
-                statusList.add("Error");
-                reasonList.add("Processing error: " + e.getMessage());
+            }
+            
+            if (!overridesToSave.isEmpty()) {
+                overrideRepository.saveAll(overridesToSave);
+                System.out.println("Phase 1: Batch saved " + overridesToSave.size() + " overrides");
             }
         }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Phase 1: Completed override processing in " + (endTime - startTime) + "ms");
         
         reasonMap.put("Overrides", reasonList);
         return statusList;
@@ -200,60 +244,78 @@ public class BulkDataService {
         List<String> statusList = new ArrayList<>();
         List<String> reasonList = new ArrayList<>();
         
-        for (Map<String, Object> rowData : itemData) {
-            try {
-                String overrideName = getString(rowData, "Override_Name");
-                String itemName = getString(rowData, "Item_Name");
-                
-                if (!successfulOverrides.contains(overrideName)) {
+        long startTime = System.currentTimeMillis();
+        System.out.println("Phase 1: Starting batch processing of " + itemData.size() + " items");
+        
+        List<List<Map<String, Object>>> batches = partitionDataIntoBatches(itemData, 1000);
+        
+        for (List<Map<String, Object>> batch : batches) {
+            List<Item> itemsToSave = new ArrayList<>();
+            
+            for (Map<String, Object> rowData : batch) {
+                try {
+                    String overrideName = getString(rowData, "Override_Name");
+                    String itemName = getString(rowData, "Item_Name");
+                    
+                    if (!successfulOverrides.contains(overrideName)) {
+                        statusList.add("Error");
+                        reasonList.add("Parent Override failed or not found: " + overrideName);
+                        continue;
+                    }
+                    
+                    String validationError = validateItemData(rowData);
+                    if (validationError != null) {
+                        statusList.add("Error");
+                        reasonList.add(validationError);
+                        continue;
+                    }
+                    
+                    Optional<Override> parentOverride = overrideRepository.findByOverrideName(overrideName);
+                    if (!parentOverride.isPresent()) {
+                        statusList.add("Error");
+                        reasonList.add("Parent Override not found: " + overrideName);
+                        continue;
+                    }
+                    
+                    String currencyCode = getString(rowData, "Currency_Code");
+                    String createdBy = getString(rowData, "Created_By");
+                    String updatedBy = getString(rowData, "Updated_By");
+                    
+                    Optional<Item> existingItem = itemRepository.findByItemName(itemName);
+                    Item item;
+                    
+                    if (existingItem.isPresent()) {
+                        item = existingItem.get();
+                        item.setOverride(parentOverride.get());
+                        item.setCurrencyCode(currencyCode);
+                        item.setUpdatedBy(updatedBy);
+                        item.setUpdatedTimestamp(LocalDateTime.now());
+                        statusList.add("Success");
+                        reasonList.add("Item updated successfully");
+                    } else {
+                        String itemId = "ITM_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000);
+                        item = new Item(itemId, parentOverride.get(), currencyCode, createdBy, updatedBy, itemName);
+                        statusList.add("Success");
+                        reasonList.add("Item created successfully");
+                    }
+                    
+                    setItemValues(item, rowData);
+                    itemsToSave.add(item);
+                    
+                } catch (Exception e) {
                     statusList.add("Error");
-                    reasonList.add("Parent Override failed or not found: " + overrideName);
-                    continue;
+                    reasonList.add("Processing error: " + e.getMessage());
                 }
-                
-                String validationError = validateItemData(rowData);
-                if (validationError != null) {
-                    statusList.add("Error");
-                    reasonList.add(validationError);
-                    continue;
-                }
-                
-                Optional<Override> parentOverride = overrideRepository.findByOverrideName(overrideName);
-                if (!parentOverride.isPresent()) {
-                    statusList.add("Error");
-                    reasonList.add("Parent Override not found: " + overrideName);
-                    continue;
-                }
-                
-                String currencyCode = getString(rowData, "Currency_Code");
-                String createdBy = getString(rowData, "Created_By");
-                String updatedBy = getString(rowData, "Updated_By");
-                
-                Optional<Item> existingItem = itemRepository.findByItemName(itemName);
-                Item item;
-                
-                if (existingItem.isPresent()) {
-                    item = existingItem.get();
-                    item.setOverride(parentOverride.get());
-                    item.setCurrencyCode(currencyCode);
-                    item.setUpdatedBy(updatedBy);
-                    item.setUpdatedTimestamp(LocalDateTime.now());
-                } else {
-                    String itemId = "ITM_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000);
-                    item = new Item(itemId, parentOverride.get(), currencyCode, createdBy, updatedBy, itemName);
-                }
-                
-                setItemValues(item, rowData);
-                
-                itemRepository.save(item);
-                statusList.add("Success");
-                reasonList.add(existingItem.isPresent() ? "Item updated successfully" : "Item created successfully");
-                
-            } catch (Exception e) {
-                statusList.add("Error");
-                reasonList.add("Processing error: " + e.getMessage());
+            }
+            
+            if (!itemsToSave.isEmpty()) {
+                itemRepository.saveAll(itemsToSave);
+                System.out.println("Phase 1: Batch saved " + itemsToSave.size() + " items");
             }
         }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Phase 1: Completed item processing in " + (endTime - startTime) + "ms");
         
         reasonMap.put("Items", reasonList);
         return statusList;
@@ -442,5 +504,16 @@ public class BulkDataService {
             return "Request_Type is required";
         }
         return null;
+    }
+    
+    private List<List<Map<String, Object>>> partitionDataIntoBatches(List<Map<String, Object>> data, int batchSize) {
+        List<List<Map<String, Object>>> batches = new ArrayList<>();
+        
+        for (int i = 0; i < data.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, data.size());
+            batches.add(new ArrayList<>(data.subList(i, end)));
+        }
+        
+        return batches;
     }
 }
