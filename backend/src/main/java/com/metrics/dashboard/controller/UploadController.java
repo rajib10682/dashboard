@@ -1,5 +1,6 @@
 package com.metrics.dashboard.controller;
 
+import com.metrics.dashboard.exception.BulkProcessingException;
 import com.metrics.dashboard.service.BulkDataService;
 import com.metrics.dashboard.service.ExcelProcessingService;
 import com.metrics.dashboard.service.ParallelBulkDataService;
@@ -32,20 +33,20 @@ public class UploadController {
     
     @PostMapping("/bulk")
     public ResponseEntity<byte[]> bulkUpload(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File cannot be empty");
+        }
+        
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("File size exceeds maximum allowed size of 50MB");
+        }
+        
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || (!fileName.toLowerCase().endsWith(".xlsx") && !fileName.toLowerCase().endsWith(".xls"))) {
+            throw new IllegalArgumentException("File must be an Excel file (.xlsx or .xls)");
+        }
+        
         try {
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-            
-            if (file.getSize() > MAX_FILE_SIZE) {
-                return ResponseEntity.badRequest().build();
-            }
-            
-            String fileName = file.getOriginalFilename();
-            if (fileName == null || (!fileName.toLowerCase().endsWith(".xlsx") && !fileName.toLowerCase().endsWith(".xls"))) {
-                return ResponseEntity.badRequest().build();
-            }
-            
             byte[] fileData = file.getBytes();
             Map<String, List<Map<String, Object>>> excelData = excelProcessingService.parseExcelFile(fileData);
             
@@ -78,7 +79,7 @@ public class UploadController {
             return ResponseEntity.ok().headers(headers).body(responseExcel);
             
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            throw new BulkProcessingException("Failed to process bulk upload: " + e.getMessage(), e);
         }
     }
 }

@@ -22,11 +22,7 @@ public class ConfigController {
     
     @PutMapping("/thresholds")
     public ResponseEntity<ThresholdConfig> updateThresholds(@Valid @RequestBody ThresholdConfig thresholds) {
-        try {
-            ThresholdConfig updated = configService.updateThresholds(thresholds);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        ThresholdConfig updated = configService.updateThresholds(thresholds);
+        return ResponseEntity.ok(updated);
     }
 }

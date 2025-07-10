@@ -1,6 +1,7 @@
 package com.metrics.dashboard.controller;
 
 import com.metrics.dashboard.entity.Override;
+import com.metrics.dashboard.exception.EntityNotFoundException;
 import com.metrics.dashboard.repository.OverrideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,8 @@ public class SecondaryController {
     @GetMapping("/{overrideId}")
     public ResponseEntity<Override> getOverride(@PathVariable Long overrideId) {
         Optional<Override> override = overrideRepository.findById(overrideId);
-        return override.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return override.map(ResponseEntity::ok)
+                .orElseThrow(() -> new EntityNotFoundException("Override", overrideId));
     }
     
     @DeleteMapping("/{overrideId}")
@@ -38,24 +40,20 @@ public class SecondaryController {
             overrideRepository.deleteById(overrideId);
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException("Override", overrideId);
         }
     }
     
     @PostMapping
     public ResponseEntity<Override> createOverride(@Valid @RequestBody Override override) {
-        try {
-            override.setOverrideId(null);
-            Override savedOverride = overrideRepository.save(override);
-            return ResponseEntity.ok(savedOverride);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        override.setOverrideId(null);
+        Override savedOverride = overrideRepository.save(override);
+        return ResponseEntity.ok(savedOverride);
     }
     
     @PutMapping("/{overrideId}")
     @Transactional
-    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @RequestBody Override override) {
+    public ResponseEntity<Override> updateOverride(@PathVariable Long overrideId, @Valid @RequestBody Override override) {
         Optional<Override> existingOverride = overrideRepository.findById(overrideId);
         if (existingOverride.isPresent()) {
             Override existing = existingOverride.get();
@@ -64,14 +62,10 @@ public class SecondaryController {
             existing.setOnHoldTime(override.getOnHoldTime());
             existing.setCoreExecutionTime(override.getCoreExecutionTime());
             existing.setRequestType(override.getRequestType());
-            try {
-                Override savedOverride = overrideRepository.save(existing);
-                return ResponseEntity.ok(savedOverride);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().build();
-            }
+            Override savedOverride = overrideRepository.save(existing);
+            return ResponseEntity.ok(savedOverride);
         } else {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException("Override", overrideId);
         }
     }
 }
