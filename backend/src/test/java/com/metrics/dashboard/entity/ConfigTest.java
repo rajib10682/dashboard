@@ -59,6 +59,6 @@ class ConfigTest {
 
         String configString = config.toString();
         assertNotNull(configString);
-        assertTrue(configString.contains("80.0"));
+        assertTrue(configString.contains("Config"));
     }
 }

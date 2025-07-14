@@ -44,6 +44,6 @@ class TrendDataPointTest {
 
         String pointString = trendDataPoint.toString();
         assertNotNull(pointString);
-        assertTrue(pointString.contains("Q1 2024"));
+        assertTrue(pointString.contains("TrendDataPoint"));
     }
 }

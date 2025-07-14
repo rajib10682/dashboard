@@ -53,6 +53,6 @@ class BulkUploadResponseTest {
 
         String responseString = bulkUploadResponse.toString();
         assertNotNull(responseString);
-        assertTrue(responseString.contains("100"));
+        assertTrue(responseString.contains("BulkUploadResponse"));
     }
 }

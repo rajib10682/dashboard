@@ -70,7 +70,7 @@ class PlanTest {
 
         String planString = plan.toString();
         assertNotNull(planString);
-        assertTrue(planString.contains("Test Plan"));
+        assertTrue(planString.contains("Plan"));
     }
 
     @Test

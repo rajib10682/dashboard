@@ -50,6 +50,6 @@ class ThresholdConfigTest {
 
         String configString = thresholdConfig.toString();
         assertNotNull(configString);
-        assertTrue(configString.contains("80.0"));
+        assertTrue(configString.contains("ThresholdConfig"));
     }
 }

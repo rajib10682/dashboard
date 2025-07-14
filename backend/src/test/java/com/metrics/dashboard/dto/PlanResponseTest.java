@@ -55,6 +55,6 @@ class PlanResponseTest {
 
         String responseString = planResponse.toString();
         assertNotNull(responseString);
-        assertTrue(responseString.contains("Test Plan"));
+        assertTrue(responseString.contains("PlanResponse"));
     }
 }

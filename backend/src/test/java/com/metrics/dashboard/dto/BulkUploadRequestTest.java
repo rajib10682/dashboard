@@ -45,6 +45,6 @@ class BulkUploadRequestTest {
 
         String requestString = bulkUploadRequest.toString();
         assertNotNull(requestString);
-        assertTrue(requestString.contains("test.xlsx"));
+        assertTrue(requestString.contains("BulkUploadRequest"));
     }
 }

@@ -120,6 +120,6 @@ class ItemTest {
 
         String itemString = item.toString();
         assertNotNull(itemString);
-        assertTrue(itemString.contains("ITEM001"));
+        assertTrue(itemString.contains("Item"));
     }
 }

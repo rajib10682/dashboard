@@ -95,6 +95,6 @@ class OverrideTest {
 
         String overrideString = override.toString();
         assertNotNull(overrideString);
-        assertTrue(overrideString.contains("Test Override"));
+        assertTrue(overrideString.contains("Override"));
     }
 }

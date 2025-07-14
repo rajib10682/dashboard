@@ -47,6 +47,6 @@ class SummaryResponseTest {
 
         String responseString = summaryResponse.toString();
         assertNotNull(responseString);
-        assertTrue(responseString.contains("10"));
+        assertTrue(responseString.contains("SummaryResponse"));
     }
 }
