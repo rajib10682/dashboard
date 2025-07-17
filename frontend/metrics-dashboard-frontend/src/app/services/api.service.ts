@@ -17,6 +17,7 @@ export interface PageResponse<T> {
 })
 export class ApiService {
   private apiUrl = environment.apiUrl;
+  private exportApiUrl = environment.exportApiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -67,7 +68,7 @@ export class ApiService {
     if (dataId) {
       params = params.set('dataId', dataId.toString());
     }
-    return this.http.get(`${this.apiUrl}/export/csv`, { 
+    return this.http.get(`${this.exportApiUrl}/download/csv`, { 
       params, 
       responseType: 'blob' 
     });
@@ -81,7 +82,7 @@ export class ApiService {
     const formData = new FormData();
     formData.append('file', file);
     
-    return this.http.post(`${this.apiUrl}/upload/bulk`, formData, {
+    return this.http.post(`${this.exportApiUrl}/upload/bulk`, formData, {
       responseType: 'blob'
     });
   }
