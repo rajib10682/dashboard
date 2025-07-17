@@ -17,11 +17,13 @@
         [auto]="false"
         [customUpload]="true"
         (uploadHandler)="onUpload($event)"
-        chooseLabel="Select Excel File"
+        chooseLabel="+ Select Excel File"
         uploadLabel="Upload & Process"
         cancelLabel="Cancel"
         [showUploadButton]="true"
-        [showCancelButton]="true">
+        [showCancelButton]="true"
+        chooseIcon="pi pi-plus"
+        styleClass="custom-file-upload">
         
         <ng-template pTemplate="content">
           <ul *ngIf="uploadedFiles.length">
